@@ -1,9 +1,8 @@
 #include <sourcemod>
-#include <multicolors>
 #include <store>
 
 #pragma semicolon 1
-// #pragma newdecls required - Store :c
+#pragma newdecls required
 
 ConVar g_Eventtime = null, g_MinSayi = null, g_MaxSayi = null, g_Beklemesure = null, g_Kredi = null, g_KrediR = null;
 
@@ -18,7 +17,7 @@ public Plugin myinfo =
 	name = "Kredi Etkinliği", 
 	author = "ByDexter", 
 	description = "", 
-	version = "1.0", 
+	version = "1.1", 
 	url = "https://steamcommunity.com/id/ByDexterTR - ByDexter#5494"
 };
 
@@ -28,7 +27,7 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_eventkalan", EventZaman);
 	/* Random Number Event */
 	g_MinSayi = CreateConVar("sm_randomnumber_min", "1", "Sayı etkinliğinde en düşük değer", 0, true, 0.0);
-	g_MaxSayi = CreateConVar("sm_randomnumber_max", "15", "Sayı etkinliğinde en yüksek değer", 0, true, 0.0);
+	g_MaxSayi = CreateConVar("sm_randomnumber_max", "15", "Sayı etkinliğinde en yüksek değer", 0, true, 1.0);
 	g_Beklemesure = CreateConVar("sm_randomnumber_time", "10", "Sayı etkinliği başladıktan sonraki yanıt süresi (Saniye)", 0, true, 0.0);
 	g_Kredi = CreateConVar("sm_randomnumber_credit", "1500", "Numarayı bilen oyuncuya verilecek kredi ?", 0, true, 0.0);
 	/* Random Player */
@@ -72,18 +71,18 @@ public Action EventZaman(int client, int args)
 	{
 		if (Sira == 1)
 		{
-			CReplyToCommand(client, "{green}[Event] {default}Rastgele sayı kalan: {green}%d Dakika", Kalansure);
+			ReplyToCommand(client, "[SM] \x01Rastgele sayı kalan: \x04%d Dakika", Kalansure);
 			return Plugin_Handled;
 		}
 		else if (Sira == 2)
 		{
-			CReplyToCommand(client, "{green}[Event] {default}Rastgele şanslı kişi kalan: {green}%d Dakika", Kalansure);
+			ReplyToCommand(client, "[SM] \x01Rastgele şanslı kişi kalan: \x04%d Dakika", Kalansure);
 			return Plugin_Handled;
 		}
 	}
 	else
 	{
-		CReplyToCommand(client, "{green}[Event] {default}Etkinlik başlamış!");
+		ReplyToCommand(client, "[SM] \x01Etkinlik başlamış!");
 		return Plugin_Handled;
 	}
 	return Plugin_Handled;
@@ -129,8 +128,8 @@ public Action EventStart(Handle timer, any data)
 				delete ScreenText;
 			}
 		}
-		CPrintToChat(Sanslikisi, "{green}[Event] {darkblue}%d Kredi {default}Kazandın!", g_KrediR.IntValue);
-		CPrintToChatAll("{green}[Event] {darkblue}%d dakika {default}sonra rastgele sayı etkinliği yapılacaktır!", g_Eventtime.IntValue);
+		PrintToChat(Sanslikisi, "[SM] \x0C%d Kredi \x01Kazandın!", g_KrediR.IntValue);
+		PrintToChatAll("[SM] \x0C%d dakika \x01sonra rastgele sayı etkinliği yapılacaktır!", g_Eventtime.IntValue);
 		Olustur();
 	}
 }
@@ -149,7 +148,7 @@ public Action EventIptal(Handle timer)
 			delete ScreenText;
 		}
 	}
-	CPrintToChatAll("{green}[Event] {darkblue}%d Dakika {default}sonra rastgele kişi etkinliği yapılacaktır!", g_Eventtime.IntValue);
+	PrintToChatAll("[SM] \x0C%d Dakika \x01sonra rastgele kişi etkinliği yapılacaktır!", g_Eventtime.IntValue);
 	Olustur();
 	g_Timer_Sayi = null;
 	return Plugin_Stop;
@@ -177,8 +176,8 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
 					delete ScreenText;
 				}
 			}
-			CPrintToChat(client, "{green}[Event] {darkblue}%d Kredi {default}Kazandın!", g_Kredi.IntValue);
-			CPrintToChatAll("{green}[Event] {darkblue}%d Dakika {default}sonra rastgele kişi etkinliği yapılacaktır!", g_Eventtime.IntValue);
+			PrintToChat(client, "[SM] \x0C%d Kredi \x01Kazandın!", g_Kredi.IntValue);
+			PrintToChatAll("[SM] \x0C%d Dakika \x01sonra rastgele kişi etkinliği yapılacaktır!", g_Eventtime.IntValue);
 			Olustur();
 		}
 	}
@@ -213,7 +212,7 @@ void Olustur()
 	g_Timer = CreateTimer(Sure, EventStart, _, TIMER_FLAG_NO_MAPCHANGE);
 }
 
-RastgeleKisi()
+int RastgeleKisi()
 {
 	int clients[MAXPLAYERS + 1], clientCount;
 	for (int i = 1; i <= MaxClients; i++)
@@ -224,4 +223,4 @@ RastgeleKisi()
 		}
 	}
 	return (clientCount == 0) ? -1 : clients[GetRandomInt(0, clientCount - 1)];
-} 
+}
